@@ -1,7 +1,9 @@
+/* eslint-disable linebreak-style */
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const usersRouter = require('./routes/users');
+const cardsRouter = require('./routes/cards');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -21,6 +23,7 @@ mongoose
   });
 
 app.use('/users', usersRouter);
+app.use('/cards', cardsRouter);
 
 app.use((req, res, next) => {
   req.user = {
