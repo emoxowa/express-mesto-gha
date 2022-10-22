@@ -1,6 +1,3 @@
-// eslint-disable-next-line no-unused-vars
-const mongoose = require("mongoose");
-
 const ERRORS = {
   ERROR_400: {
     CODE: 400,
