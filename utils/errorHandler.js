@@ -17,14 +17,11 @@ const ERRORS = {
 };
 
 const handleError = (res, err) => {
-  if (
-    err instanceof mongoose.Error.CastError
-    || err instanceof mongoose.Error.ValidationError
-  ) {
+  if (err.name === "CastError" || err.name === "ValidationError") {
     res
       .status(ERRORS.ERROR_400.CODE)
       .send({ message: ERRORS.ERROR_400.MESSAGE });
-  } else if (err instanceof mongoose.Error.DocumentNotFoundError) {
+  } else if (err.message === "notValidId") {
     res
       .status(ERRORS.ERROR_404.CODE)
       .send({ message: ERRORS.ERROR_404.MESSAGE });
