@@ -12,6 +12,7 @@ const getUsers = (req, res) => {
 
 const getUser = (req, res) => {
   User.findById(req.params.userId)
+    .orFail(new Error("notValidId"))
     .then((user) => res.send(user))
     .catch((err) => {
       handleError(res, err);
