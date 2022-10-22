@@ -23,6 +23,7 @@ const createCard = (req, res) => {
 
 const deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
+    .orFail(new Error("notValidId"))
     .then((card) => res.send(card))
     .catch((err) => {
       handleError(res, err);
@@ -36,6 +37,7 @@ const likeCard = (req, res) => {
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
+    .orFail(new Error("notValidId"))
     .then((card) => res.send(card))
     .catch((err) => {
       handleError(res, err);
@@ -51,6 +53,7 @@ const dislikeCard = (req, res) => {
     },
     { new: true },
   )
+    .orFail(new Error("notValidId"))
     .then((card) => res.send(card))
     .catch((err) => {
       handleError(res, err);

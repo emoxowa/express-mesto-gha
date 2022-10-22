@@ -41,6 +41,7 @@ const updateUser = (req, res) => {
       runValidators: true,
     },
   )
+    .orFail(new Error("notValidId"))
     .then((user) => res.send(user))
     .catch((err) => {
       handleError(res, err);
@@ -60,6 +61,7 @@ const updateUserAvatar = (req, res) => {
       runValidators: true,
     },
   )
+    .orFail(new Error("notValidId"))
     .then((user) => res.send(user))
     .catch((err) => {
       handleError(res, err);
