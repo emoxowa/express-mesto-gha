@@ -1,9 +1,13 @@
 const Card = require("../models/cards");
+const { handleError } = require("../utils/errorHandler");
 
 const getCards = (req, res) => {
   Card.find({})
     .then((cards) => res.send(cards))
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      handleError(res, err);
+      console.log(err.name);
+    });
 };
 
 const createCard = (req, res) => {
@@ -11,13 +15,19 @@ const createCard = (req, res) => {
   const owner = req.user._id;
   Card.create({ name, link, owner })
     .then((newCard) => res.send(newCard))
-    .catch((err) => console.log(err, owner));
+    .catch((err) => {
+      handleError(res, err);
+      console.log(err.name);
+    });
 };
 
 const deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
     .then((card) => res.send(card))
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      handleError(res, err);
+      console.log(err.name);
+    });
 };
 
 const likeCard = (req, res) => {
@@ -27,7 +37,10 @@ const likeCard = (req, res) => {
     { new: true },
   )
     .then((card) => res.send(card))
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      handleError(res, err);
+      console.log(err.name, err.message);
+    });
 };
 
 const dislikeCard = (req, res) => {
@@ -39,7 +52,10 @@ const dislikeCard = (req, res) => {
     { new: true },
   )
     .then((card) => res.send(card))
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      handleError(res, err);
+      console.log(err.name);
+    });
 };
 
 module.exports = {

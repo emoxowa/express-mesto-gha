@@ -1,22 +1,32 @@
 const User = require("../models/users");
+const { handleError } = require("../utils/errorHandler");
 
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => res.send(users))
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      handleError(res, err);
+      console.log(err.name);
+    });
 };
 
 const getUser = (req, res) => {
   User.findById(req.params.userId)
     .then((user) => res.send(user))
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      handleError(res, err);
+      console.log(err.name);
+    });
 };
 
 const createUser = (req, res) => {
   const { name, about, avatar } = req.body;
   User.create({ name, about, avatar })
     .then((newUser) => res.send(newUser))
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      handleError(res, err);
+      console.log(err.name);
+    });
 };
 
 const updateUser = (req, res) => {
@@ -32,7 +42,10 @@ const updateUser = (req, res) => {
     },
   )
     .then((user) => res.send(user))
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      handleError(res, err);
+      console.log(err.name);
+    });
 };
 
 const updateUserAvatar = (req, res) => {
@@ -48,7 +61,10 @@ const updateUserAvatar = (req, res) => {
     },
   )
     .then((user) => res.send(user))
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      handleError(res, err);
+      console.log(err.name);
+    });
 };
 
 module.exports = {
