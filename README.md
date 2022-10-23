@@ -6,9 +6,9 @@
 ## Статусы тестов
 
 ```
-[![Tests for sprint 13](https://github.com/${emoxowa}/${имя репозитория}/actions/workflows/tests-13-sprint.yml/badge.svg)](https://github.com/${emoxowa}/${express-mesto-gha}/actions/workflows/tests-13-sprint.yml) 
+[![Tests for sprint 13](https://github.com/${emoxowa}/${express-mesto-gha}/actions/workflows/tests-13-sprint.yml/badge.svg)](https://github.com/${emoxowa}/${express-mesto-gha}/actions/workflows/tests-13-sprint.yml) 
 
-[![Tests for sprint 14](https://github.com/${emoxowa}/${имя репозитория}/actions/workflows/tests-14-sprint.yml/badge.svg)](https://github.com/${emoxowa}/${express-mesto-gha}/actions/workflows/tests-14-sprint.yml)
+[![Tests for sprint 14](https://github.com/${emoxowa}/${express-mesto-gha}/actions/workflows/tests-14-sprint.yml/badge.svg)](https://github.com/${emoxowa}/${express-mesto-gha}/actions/workflows/tests-14-sprint.yml)
 ```
 
 
