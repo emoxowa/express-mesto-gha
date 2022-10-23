@@ -16,7 +16,7 @@ const getUser = (req, res) => {
     .orFail(new Error("notValidId"))
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === "CastError" || err.name === "ValidationError") {
+      if (err.name === "CastError") {
         res
           .status(ERRORS.ERROR_400.CODE)
           .send({ message: ERRORS.ERROR_400.MESSAGE });
@@ -37,7 +37,7 @@ const createUser = (req, res) => {
   User.create({ name, about, avatar })
     .then((newUser) => res.send(newUser))
     .catch((err) => {
-      if (err.name === "CastError" || err.name === "ValidationError") {
+      if (err.name === "ValidationError") {
         res
           .status(ERRORS.ERROR_400.CODE)
           .send({ message: ERRORS.ERROR_400.MESSAGE });

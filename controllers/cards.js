@@ -34,7 +34,7 @@ const deleteCard = (req, res) => {
     .orFail(new Error("notValidId"))
     .then((card) => res.send(card))
     .catch((err) => {
-      if (err.name === "CastError" || err.name === "ValidationError") {
+      if (err.name === "CastError") {
         res
           .status(ERRORS.ERROR_400.CODE)
           .send({ message: ERRORS.ERROR_400.MESSAGE });
