@@ -1,12 +1,13 @@
 const Card = require("../models/cards");
-const { handleError } = require("../utils/errorHandler");
+const { ERRORS } = require("../utils/constants");
 
 const getCards = (req, res) => {
   Card.find({})
     .then((cards) => res.send(cards))
-    .catch((err) => {
-      handleError(res, err);
-      console.log(err.name);
+    .catch(() => {
+      res
+        .status(ERRORS.ERROR_500.CODE)
+        .send({ message: ERRORS.ERROR_500.MESSAGE });
     });
 };
 
@@ -16,8 +17,15 @@ const createCard = (req, res) => {
   Card.create({ name, link, owner })
     .then((newCard) => res.send(newCard))
     .catch((err) => {
-      handleError(res, err);
-      console.log(err.name);
+      if (err.name === "CastError" || err.name === "ValidationError") {
+        res
+          .status(ERRORS.ERROR_400.CODE)
+          .send({ message: ERRORS.ERROR_400.MESSAGE });
+      } else {
+        res
+          .status(ERRORS.ERROR_500.CODE)
+          .send({ message: ERRORS.ERROR_500.MESSAGE });
+      }
     });
 };
 
@@ -26,8 +34,19 @@ const deleteCard = (req, res) => {
     .orFail(new Error("notValidId"))
     .then((card) => res.send(card))
     .catch((err) => {
-      handleError(res, err);
-      console.log(err.name);
+      if (err.name === "CastError" || err.name === "ValidationError") {
+        res
+          .status(ERRORS.ERROR_400.CODE)
+          .send({ message: ERRORS.ERROR_400.MESSAGE });
+      } else if (err.message === "notValidId") {
+        res
+          .status(ERRORS.ERROR_404.CODE)
+          .send({ message: ERRORS.ERROR_404.MESSAGE });
+      } else {
+        res
+          .status(ERRORS.ERROR_500.CODE)
+          .send({ message: ERRORS.ERROR_500.MESSAGE });
+      }
     });
 };
 
@@ -40,8 +59,19 @@ const likeCard = (req, res) => {
     .orFail(new Error("notValidId"))
     .then((card) => res.send(card))
     .catch((err) => {
-      handleError(res, err);
-      console.log(err.name, err.message);
+      if (err.name === "CastError" || err.name === "ValidationError") {
+        res
+          .status(ERRORS.ERROR_400.CODE)
+          .send({ message: ERRORS.ERROR_400.MESSAGE });
+      } else if (err.message === "notValidId") {
+        res
+          .status(ERRORS.ERROR_404.CODE)
+          .send({ message: ERRORS.ERROR_404.MESSAGE });
+      } else {
+        res
+          .status(ERRORS.ERROR_500.CODE)
+          .send({ message: ERRORS.ERROR_500.MESSAGE });
+      }
     });
 };
 
@@ -56,8 +86,19 @@ const dislikeCard = (req, res) => {
     .orFail(new Error("notValidId"))
     .then((card) => res.send(card))
     .catch((err) => {
-      handleError(res, err);
-      console.log(err.name);
+      if (err.name === "CastError" || err.name === "ValidationError") {
+        res
+          .status(ERRORS.ERROR_400.CODE)
+          .send({ message: ERRORS.ERROR_400.MESSAGE });
+      } else if (err.message === "notValidId") {
+        res
+          .status(ERRORS.ERROR_404.CODE)
+          .send({ message: ERRORS.ERROR_404.MESSAGE });
+      } else {
+        res
+          .status(ERRORS.ERROR_500.CODE)
+          .send({ message: ERRORS.ERROR_500.MESSAGE });
+      }
     });
 };
 
