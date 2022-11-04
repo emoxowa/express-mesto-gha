@@ -1,81 +1,66 @@
 const Card = require("../models/cards");
-const { ERRORS } = require("../utils/constants");
+const NotFoundError = require("../utils/errors/not-found-err");
+const BadRequestError = require("../utils/errors/bad-request-err");
+const ForbiddenError = require("../utils/errors/forbidden-err");
 
-const getCards = (req, res) => {
+
+const getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => res.send(cards))
-    .catch(() => {
-      res
-        .status(ERRORS.ERROR_500.CODE)
-        .send({ message: ERRORS.ERROR_500.MESSAGE });
-    });
+    .catch(next);
 };
 
-const createCard = (req, res) => {
+const createCard = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
   Card.create({ name, link, owner })
     .then((newCard) => res.send(newCard))
     .catch((err) => {
-      if (err.name === "CastError" || err.name === "ValidationError") {
-        res
-          .status(ERRORS.ERROR_400.CODE)
-          .send({ message: ERRORS.ERROR_400.MESSAGE });
-      } else {
-        res
-          .status(ERRORS.ERROR_500.CODE)
-          .send({ message: ERRORS.ERROR_500.MESSAGE });
+      if (err.name === "ValidationError") {
+        return next(new BadRequestError("Ошибка валидации. Введены некорректные данные"));
       }
+      return next(err);
     });
 };
 
-const deleteCard = (req, res) => {
-  Card.findByIdAndRemove(req.params.cardId)
-    .orFail(new Error("notValidId"))
-    .then((card) => res.send(card))
-    .catch((err) => {
-      if (err.name === "CastError") {
-        res
-          .status(ERRORS.ERROR_400.CODE)
-          .send({ message: ERRORS.ERROR_400.MESSAGE });
-      } else if (err.message === "notValidId") {
-        res
-          .status(ERRORS.ERROR_404.CODE)
-          .send({ message: ERRORS.ERROR_404.MESSAGE });
-      } else {
-        res
-          .status(ERRORS.ERROR_500.CODE)
-          .send({ message: ERRORS.ERROR_500.MESSAGE });
+const deleteCard = (req, res, next) => {
+  const { cardId } = req.params;
+
+  Card.findById(cardId)
+    .orFail(new NotFoundError("Карточка с указанным id не найдена"))
+    .then((card) => {
+      if (card.owner.toString() !== req.user._id) {
+        throw new ForbiddenError("Запрещено удалять чужие карточки");
       }
-    });
+      Card.findByIdAndRemove(card)
+        .then(() => {
+          if (!card) {
+            throw new NotFoundError("Карточка с указанным id не найдена");
+          }
+          res.send({ message: "Карточка удалена" });
+        })
+        .catch(next);
+    })
+    .catch(next);
 };
 
-const likeCard = (req, res) => {
+const likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
-    .orFail(new Error("notValidId"))
+    .orFail(new NotFoundError("Карточка с указанным id не найдена"))
     .then((card) => res.send(card))
     .catch((err) => {
-      if (err.name === "CastError" || err.name === "ValidationError") {
-        res
-          .status(ERRORS.ERROR_400.CODE)
-          .send({ message: ERRORS.ERROR_400.MESSAGE });
-      } else if (err.message === "notValidId") {
-        res
-          .status(ERRORS.ERROR_404.CODE)
-          .send({ message: ERRORS.ERROR_404.MESSAGE });
-      } else {
-        res
-          .status(ERRORS.ERROR_500.CODE)
-          .send({ message: ERRORS.ERROR_500.MESSAGE });
+      if (err.name === "CastError") {
+        return next(new BadRequestError("Некорректный id карточки"));
       }
+      return next(err);
     });
 };
 
-const dislikeCard = (req, res) => {
+const dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     {
@@ -83,22 +68,13 @@ const dislikeCard = (req, res) => {
     },
     { new: true },
   )
-    .orFail(new Error("notValidId"))
+    .orFail(new NotFoundError("Карточка с указанным id не найдена"))
     .then((card) => res.send(card))
     .catch((err) => {
-      if (err.name === "CastError" || err.name === "ValidationError") {
-        res
-          .status(ERRORS.ERROR_400.CODE)
-          .send({ message: ERRORS.ERROR_400.MESSAGE });
-      } else if (err.message === "notValidId") {
-        res
-          .status(ERRORS.ERROR_404.CODE)
-          .send({ message: ERRORS.ERROR_404.MESSAGE });
-      } else {
-        res
-          .status(ERRORS.ERROR_500.CODE)
-          .send({ message: ERRORS.ERROR_500.MESSAGE });
+      if (err.name === "CastError") {
+        return next(new BadRequestError("Некорректный id карточки"));
       }
+      return next(err);
     });
 };
 

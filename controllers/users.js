@@ -1,49 +1,39 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const User = require("../models/users");
-const { ERRORS } = require("../utils/constants");
+const NotFoundError = require("../utils/errors/not-found-err");
+const BadRequestError = require("../utils/errors/bad-request-err");
+const ConflictError = require("../utils/errors/conflict-err");
+const UnauthError = require("../utils/errors/unauth-err");
 
-const getUsers = (req, res) => {
+const getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send(users))
-    .catch(() => {
-      res
-        .status(ERRORS.ERROR_500.CODE)
-        .send({ message: ERRORS.ERROR_500.MESSAGE });
-    });
+    .catch(next);
 };
 
 const getUser = (req, res, next) => {
   User.findById(req.user._id)
-    .orFail(new Error("notValidId"))
+    .orFail(new NotFoundError("Пользователь с указанным id не найден"))
     .then((user) => {
       res.send(user);
     })
     .catch(next);
 };
 
-const getUserById = (req, res) => {
+const getUserById = (req, res, next) => {
   User.findById(req.params.userId)
-    .orFail(new Error("notValidId"))
+    .orFail(new NotFoundError("Пользователь с указанным id не найден"))
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === "CastError") {
-        res
-          .status(ERRORS.ERROR_400.CODE)
-          .send({ message: ERRORS.ERROR_400.MESSAGE });
-      } else if (err.message === "notValidId") {
-        res
-          .status(ERRORS.ERROR_404.CODE)
-          .send({ message: ERRORS.ERROR_404.MESSAGE });
-      } else {
-        res
-          .status(ERRORS.ERROR_500.CODE)
-          .send({ message: ERRORS.ERROR_500.MESSAGE });
+        return next(new BadRequestError("Некорректный id пользователя"));
       }
+      return next(err);
     });
 };
 
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   console.log(req.body);
   const {
     name, about, avatar, email, password,
@@ -62,11 +52,17 @@ const createUser = (req, res) => {
       newUser,
     }))
     .catch((err) => {
-      console.log(err);
+      if (err.name === "ValidationError") {
+        return next(new BadRequestError("Ошибка валидации. Введены некорректные данные"));
+      }
+      if (err.code === 11000) {
+        return next(new ConflictError("Пользователь с указанным email уже зарегистрирован"));
+      }
+      return next(err);
     });
 };
 
-const updateUser = (req, res) => {
+const updateUser = (req, res, next) => {
   const userId = req.user._id;
   const { name, about } = req.body;
 
@@ -78,26 +74,17 @@ const updateUser = (req, res) => {
       runValidators: true,
     },
   )
-    .orFail(new Error("notValidId"))
+    .orFail(new NotFoundError("Пользователь с указанным id не найден"))
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === "CastError" || err.name === "ValidationError") {
-        res
-          .status(ERRORS.ERROR_400.CODE)
-          .send({ message: ERRORS.ERROR_400.MESSAGE });
-      } else if (err.message === "notValidId") {
-        res
-          .status(ERRORS.ERROR_404.CODE)
-          .send({ message: ERRORS.ERROR_404.MESSAGE });
-      } else {
-        res
-          .status(ERRORS.ERROR_500.CODE)
-          .send({ message: ERRORS.ERROR_500.MESSAGE });
+      if (err.name === "ValidationError") {
+        return next(new BadRequestError("Ошибка валидации. Введены некорректные данные"));
       }
+      return next(err);
     });
 };
 
-const updateUserAvatar = (req, res) => {
+const updateUserAvatar = (req, res, next) => {
   const userId = req.user._id;
   const { avatar } = req.body;
 
@@ -109,34 +96,26 @@ const updateUserAvatar = (req, res) => {
       runValidators: true,
     },
   )
-    .orFail(new Error("notValidId"))
+    .orFail(new NotFoundError("Пользователь с указанным _id не найден"))
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === "CastError" || err.name === "ValidationError") {
-        res
-          .status(ERRORS.ERROR_400.CODE)
-          .send({ message: ERRORS.ERROR_400.MESSAGE });
-      } else if (err.message === "notValidId") {
-        res
-          .status(ERRORS.ERROR_404.CODE)
-          .send({ message: ERRORS.ERROR_404.MESSAGE });
-      } else {
-        res
-          .status(ERRORS.ERROR_500.CODE)
-          .send({ message: ERRORS.ERROR_500.MESSAGE });
+      if (err.name === "ValidationError") {
+        return next(new BadRequestError("Ошибка валидации. Введены некорректные данные"));
       }
+      return next(err);
     });
 };
 
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign(
-        { _id: user._id },
-        "some-secret-key",
-        { expiresIn: "7d" },
-      );
+      if (!user) {
+        throw new UnauthError("Авторизация не пройдена!");
+      }
+      const token = jwt.sign({ _id: user._id }, "some-secret-key", {
+        expiresIn: "7d",
+      });
       res.cookie("authorization", token, {
         httpOnly: true,
         maxAge: 3600000 * 24 * 7,
@@ -145,9 +124,7 @@ const login = (req, res) => {
       console.log("ti jopa");
       res.send({ token });
     })
-    .catch((err) => {
-      res.status(401).send({ message: err.message });
-    });
+    .catch(next);
 };
 
 module.exports = {
