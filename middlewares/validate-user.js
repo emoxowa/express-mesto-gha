@@ -12,7 +12,7 @@ const validateUserCreate = celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    avatar: Joi.string().regex(RegExp(REGEX)),
+    avatar: Joi.string().regex(REGEX),
     email: Joi.string().required().email(),
     password: Joi.string().required(),
   }),
@@ -33,7 +33,7 @@ const validateUserUpdate = celebrate({
 
 const validateAvatar = celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().required().regex(RegExp(REGEX)),
+    avatar: Joi.string().required().regex(REGEX),
   }),
 });
 
