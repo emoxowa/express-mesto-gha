@@ -3,7 +3,6 @@ const NotFoundError = require("../utils/errors/not-found-err");
 const BadRequestError = require("../utils/errors/bad-request-err");
 const ForbiddenError = require("../utils/errors/forbidden-err");
 
-
 const getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => res.send(cards))
