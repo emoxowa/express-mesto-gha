@@ -8,7 +8,6 @@ const NotFoundError = require("../utils/errors/not-found-err");
 
 router.use("/users", auth, userRouter);
 router.use("/cards", auth, cardRouter);
-router.use(auth);
 router.post("/signup", validateUserCreate, createUser);
 router.post("/signin", validateLogin, login);
 
