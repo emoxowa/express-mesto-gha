@@ -1,22 +1,22 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const bodyParser = require("body-parser");
-const cookieParser = require("cookie-parser");
-const { errors } = require("celebrate");
-const routes = require("./routes/index");
-const handleError = require("./middlewares/handle-error");
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
+const { errors } = require('celebrate');
+const routes = require('./routes/index');
+const handleError = require('./middlewares/handle-error');
 
 const { PORT = 3000 } = process.env;
 
 mongoose
-  .connect("mongodb://localhost:27017/mestodb", {
+  .connect('mongodb://localhost:27017/mestodb', {
     useNewUrlParser: true,
   })
   .then(() => {
-    console.log("DB OK");
+    console.log('DB OK');
   })
   .catch((err) => {
-    console.log("DB error", err);
+    console.log('DB error', err);
   });
 
 const app = express();

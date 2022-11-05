@@ -1,10 +1,10 @@
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcryptjs");
-const User = require("../models/users");
-const NotFoundError = require("../utils/errors/not-found-err");
-const BadRequestError = require("../utils/errors/bad-request-err");
-const ConflictError = require("../utils/errors/conflict-err");
-const UnauthError = require("../utils/errors/unauth-err");
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const User = require('../models/users');
+const NotFoundError = require('../utils/errors/not-found-err');
+const BadRequestError = require('../utils/errors/bad-request-err');
+const ConflictError = require('../utils/errors/conflict-err');
+const UnauthError = require('../utils/errors/unauth-err');
 
 const getUsers = (req, res, next) => {
   User.find({})
@@ -14,7 +14,7 @@ const getUsers = (req, res, next) => {
 
 const getUser = (req, res, next) => {
   User.findById(req.user._id)
-    .orFail(new NotFoundError("Пользователь с указанным id не найден"))
+    .orFail(new NotFoundError('Пользователь с указанным id не найден'))
     .then((user) => {
       res.send(user);
     })
@@ -23,11 +23,11 @@ const getUser = (req, res, next) => {
 
 const getUserById = (req, res, next) => {
   User.findById(req.params.userId)
-    .orFail(new NotFoundError("Пользователь с указанным id не найден"))
+    .orFail(new NotFoundError('Пользователь с указанным id не найден'))
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === "CastError") {
-        return next(new BadRequestError("Некорректный id пользователя"));
+      if (err.name === 'CastError') {
+        return next(new BadRequestError('Некорректный id пользователя'));
       }
       return next(err);
     });
@@ -53,11 +53,11 @@ const createUser = (req, res, next) => {
       return res.status(201).send(objUser);
     })
     .catch((err) => {
-      if (err.name === "ValidationError") {
-        return next(new BadRequestError("Ошибка валидации. Введены некорректные данные"));
+      if (err.name === 'ValidationError') {
+        return next(new BadRequestError('Ошибка валидации. Введены некорректные данные'));
       }
       if (err.code === 11000) {
-        return next(new ConflictError("Пользователь с указанным email уже зарегистрирован"));
+        return next(new ConflictError('Пользователь с указанным email уже зарегистрирован'));
       }
       return next(err);
     });
@@ -75,11 +75,11 @@ const updateUser = (req, res, next) => {
       runValidators: true,
     },
   )
-    .orFail(new NotFoundError("Пользователь с указанным id не найден"))
+    .orFail(new NotFoundError('Пользователь с указанным id не найден'))
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === "ValidationError") {
-        return next(new BadRequestError("Ошибка валидации. Введены некорректные данные"));
+      if (err.name === 'ValidationError') {
+        return next(new BadRequestError('Ошибка валидации. Введены некорректные данные'));
       }
       return next(err);
     });
@@ -97,11 +97,11 @@ const updateUserAvatar = (req, res, next) => {
       runValidators: true,
     },
   )
-    .orFail(new NotFoundError("Пользователь с указанным _id не найден"))
+    .orFail(new NotFoundError('Пользователь с указанным _id не найден'))
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === "ValidationError") {
-        return next(new BadRequestError("Ошибка валидации. Введены некорректные данные"));
+      if (err.name === 'ValidationError') {
+        return next(new BadRequestError('Ошибка валидации. Введены некорректные данные'));
       }
       return next(err);
     });
@@ -112,17 +112,16 @@ const login = (req, res, next) => {
   return User.findUserByCredentials(email, password)
     .then((user) => {
       if (!user) {
-        throw new UnauthError("Авторизация не пройдена!");
+        throw new UnauthError('Авторизация не пройдена!');
       }
-      const token = jwt.sign({ _id: user._id }, "some-secret-key", {
-        expiresIn: "7d",
+      const token = jwt.sign({ _id: user._id }, 'some-secret-key', {
+        expiresIn: '7d',
       });
-      res.cookie("authorization", token, {
+      res.cookie('authorization', token, {
         httpOnly: true,
         maxAge: 3600000 * 24 * 7,
         sameSite: true,
       });
-      console.log("ti jopa");
       res.send({ token });
     })
     .catch(next);
