@@ -5,7 +5,7 @@ const auth = (req, res, next) => {
   const { authorization } = req.cookies;
 
   if (!authorization) {
-    throw new UnauthorizedError("Необходима авторизация");
+    next(new UnauthorizedError("Необходима авторизация"));
   }
   const token = authorization.replace("Bearer ", "");
   let payload;

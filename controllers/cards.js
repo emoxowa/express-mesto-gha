@@ -31,16 +31,15 @@ const deleteCard = (req, res, next) => {
       if (card.owner.toString() !== req.user._id) {
         throw new ForbiddenError("Запрещено удалять чужие карточки");
       }
-      Card.findByIdAndRemove(card)
-        .then(() => {
-          if (!card) {
-            throw new NotFoundError("Карточка с указанным id не найдена");
-          }
-          res.send({ message: "Карточка удалена" });
-        })
-        .catch(next);
+      return Card.findByIdAndRemove(card);
     })
-    .catch(next);
+    .then(() => res.send({ message: "Карточка удалена" }))
+    .catch((err) => {
+      if (err.name === "CastError") {
+        return next(new BadRequestError("Некорректный id карточки"));
+      }
+      return next(err);
+    });
 };
 
 const likeCard = (req, res, next) => {

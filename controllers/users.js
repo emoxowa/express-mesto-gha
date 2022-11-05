@@ -34,7 +34,6 @@ const getUserById = (req, res, next) => {
 };
 
 const createUser = (req, res, next) => {
-  console.log(req.body);
   const {
     name, about, avatar, email, password,
   } = req.body;
@@ -48,12 +47,11 @@ const createUser = (req, res, next) => {
       email,
       password: hash,
     }))
-    .then((newUser) => res.send({
-      name: newUser.name,
-      about: newUser.about,
-      avatar: newUser.avatar,
-      email: newUser.email,
-    }))
+    .then((newUser) => {
+      const objUser = newUser.toObject();
+      delete objUser.password;
+      return res.status(201).send(objUser);
+    })
     .catch((err) => {
       if (err.name === "ValidationError") {
         return next(new BadRequestError("Ошибка валидации. Введены некорректные данные"));
