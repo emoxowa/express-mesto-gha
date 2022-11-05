@@ -1,2 +1,2 @@
-const REGEX = /https?:\/\/(w{3}.)?(\S)*\.\w{2,3}((\/\w+)+(\/\S+)+)?/;
+const REGEX = /https?:\/\/(w{3}.)?[\wА-Яа-я-]+\.[\wА-Яа-я-]{2,8}(\/?[\wА-Яа-я-]+)*/;
 module.exports = { REGEX };
